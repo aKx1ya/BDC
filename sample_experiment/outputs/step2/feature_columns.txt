@@ -1,0 +1,79 @@
+【Step 2 特征清单】
+
+总特征数: 57
+
+
+【原始字段】(8 个)
+  open
+  close
+  high
+  low
+  volume
+  amount
+  turnover
+  pct_chg
+
+【收益率】(6 个)
+  ret_1
+  ret_3
+  ret_5
+  ret_10
+  ret_20
+  ret_40
+
+【均线】(10 个)
+  ma_3
+  close_to_ma_3
+  ma_5
+  close_to_ma_5
+  ma_10
+  close_to_ma_10
+  ma_20
+  close_to_ma_20
+  ma_40
+  close_to_ma_40
+
+【波动率】(3 个)
+  volatility_5
+  volatility_10
+  volatility_20
+
+【成交量/额】(6 个)
+  amount_ma_3
+  volume_ma_3
+  amount_ma_5
+  volume_ma_5
+  amount_ma_20
+  volume_ma_20
+
+【量比】(2 个)
+  amount_ratio_3
+  volume_ratio_5
+
+【K线形态】(6 个)
+  clv
+  lower_shadow_ratio
+  upper_shadow_ratio
+  body_ratio
+  range_ratio
+  volume_close_strength
+
+【风险】(3 个)
+  drawdown_20
+  max_drop_20
+  avg_amount_3
+
+【横截面排名】(9 个)
+  ret_1_rank_pct
+  ret_3_rank_pct
+  ret_5_rank_pct
+  ret_10_rank_pct
+  ret_20_rank_pct
+  ret_40_rank_pct
+  amount_rank_pct
+  volatility_20_rank_pct
+  sector_momentum_rank_pct
+
+【行业】(2 个)
+  sector_momentum_3
+  sector_momentum_rank_pct

@@ -1,0 +1,22 @@
+# THU-BDC2026 offline-first pipeline configuration.
+data_path: app/data
+model_path: app/model
+output_path: app/output
+temp_path: app/temp
+train_file: train.csv
+test_file: test.csv
+result_file: result.csv
+sequence_length: 60
+prediction_horizon: 5
+train_window: 252
+gap: 5
+candidate_top_n: 30
+portfolio_size: 5
+equal_weight: 0.2
+random_seed: 2026
+min_avg_amount_3: 0.0
+max_drawdown_20: -0.15
+max_single_drop_20: -0.08
+max_per_sector: 2
+full_exposure: 1.0
+model_bundle_file: model_bundle.pkl
