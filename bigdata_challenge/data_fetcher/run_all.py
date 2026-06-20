@@ -113,15 +113,19 @@ def main():
     except ImportError as e:
         print(f"缺少依赖: {e}")
         print("请运行: pip3 install baostock akshare")
-        sys.exit(1)
+        return 1
 
     start_time = time.time()
+    failed_steps = []
 
     if single_step:
-        run_step(single_step)
+        if not run_step(single_step):
+            failed_steps.append(single_step)
     else:
         for step in range(start_step, end_step + 1):
             success = run_step(step)
+            if not success:
+                failed_steps.append(step)
             if not success and step < end_step:
                 print(f"\n警告：步骤{step}失败，继续下一步...")
             time.sleep(1)
@@ -131,6 +135,11 @@ def main():
     print(f"完成! 耗时: {elapsed/60:.1f} 分钟")
     print(f"{'=' * 60}")
 
+    if failed_steps:
+        print(f"失败步骤: {failed_steps}")
+        return 1
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,60 +1,118 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides execution-layer guidance for Claude Code when working inside `bigdata_challenge`.
 
-## 项目背景
+`bigdata_challenge` is the raw-data execution layer. It should not be treated as the strategy source of truth for the current experiment.
 
-大数据挑战赛：预测沪深300成分股5日收益率（T+1开盘买入 → T+5开盘卖出）。
-当前阶段：**只获取原始数据**，不做特征工程和建模。
+## 调度入口
 
-## 运行命令
+Before deciding what to run, read:
+
+```text
+../Experiment/ACTIVE_WORKFLOW.md
+```
+
+Then read the active workflow files referenced there, usually:
+
+```text
+../Experiment/workflow_0.1/README.md
+../Experiment/workflow_0.1/strategy/
+```
+
+The active workflow defines:
+
+- current strategy version
+- current stage, such as Step-1 or Step-2
+- allowed execution commands
+- expected output directory
+- schema and data-output requirements
+
+## 本目录职责
+
+`bigdata_challenge` is responsible for:
+
+- fetching raw market and auxiliary data
+- keeping raw CSV files in `data/raw/`
+- exposing stable execution scripts under `data_fetcher/`
+- documenting data sources and known raw-data caveats
+
+`bigdata_challenge` is not responsible for:
+
+- defining the active workflow strategy
+- deciding final stock screens
+- producing final experiment deliverables
+- writing trading conclusions
+- silently running feature engineering when the active workflow only asks for Step-1
+
+## 默认运行规则
+
+Only run commands allowed by `../Experiment/ACTIVE_WORKFLOW.md`.
+
+For the current `workflow_0.1` Step-1 stage, the expected raw-data commands are:
 
 ```bash
 cd data_fetcher
-
-# 日常增量更新（默认只跑步骤1~6，跳过特征工程）
-python3 run_all.py
-
-# 单独运行某一步
 python3 run_all.py --step 1
+python3 run_all.py --step 5
+```
 
-# 从第3步开始
-python3 run_all.py --from 3
+Do not run feature engineering by default:
 
-# 包含特征工程（步骤7）
+```bash
 python3 run_all.py --with-feature
 ```
 
-## 流水线结构
+Only run it when the active workflow explicitly allows Step-2 or feature generation.
 
-| 步骤 | 文件 | 数据源 | 内容 |
-|------|------|--------|------|
-| 1 | 01_price_volume.py | baostock | 300只股票日K线 |
-| 2 | 02_northbound_flow.py | akshare | 北向资金（沪深股通） |
-| 3 | 03_margin_trading.py | akshare | 融资融券 |
-| 4 | 04_money_flow.py | akshare | 资金流向排名 |
-| 5 | 05_sector_momentum.py | akshare | 行业板块K线 |
-| 6 | 06_fundamental.py | baostock+akshare | 季度财务+业绩预告 |
-| 7 | 07_feature_engine.py | 本地CSV | 特征工程（默认不执行） |
+## 流水线能力
 
-输出：`data/raw/`（原始数据）、`data/features/`（特征矩阵）
+| 步骤 | 文件 | 数据源 | 内容 | 当前定位 |
+|------|------|--------|------|----------|
+| 1 | `01_price_volume.py` | baostock | 沪深300成分股和日K线 | Step-1 可用 |
+| 2 | `02_northbound_flow.py` | akshare | 北向资金 | 当前 workflow_0.1 Step-1 暂不默认使用 |
+| 3 | `03_margin_trading.py` | akshare | 融资融券 | 当前 workflow_0.1 Step-1 暂不默认使用 |
+| 4 | `04_money_flow.py` | akshare | 资金流向 | 当前 workflow_0.1 Step-1 暂不默认使用 |
+| 5 | `05_sector_momentum.py` | akshare | 行业/板块相关数据 | Step-1 可用，但口径需核对 |
+| 6 | `06_fundamental.py` | baostock + akshare | 基本面和业绩预告 | 当前 workflow_0.1 Step-1 暂不默认使用 |
+| 7 | `07_feature_engine.py` | 本地 CSV | 特征工程 | 不属于 Step-1 默认执行 |
+
+## 输出边界
+
+Raw files stay here:
+
+```text
+bigdata_challenge/data/raw/
+```
+
+Feature files, if explicitly generated, stay here:
+
+```text
+bigdata_challenge/data/features/
+```
+
+Workflow-specific deliverables should be written outside this directory, under the active experiment path, for example:
+
+```text
+../Experiment/workflow_0.1/experiments/exp_YYYYMMDD_step1_主题/outputs/step1/
+```
 
 ## 关键机制
 
-- **增量更新**: 每个脚本运行前检查本地CSV最大日期，只下载新增数据
-- **重试逻辑**: akshare请求失败自动重试3次（指数退避：5s/10s/20s），内置在 `utils.py` 的 `@retry_request` 装饰器中
-- **工具函数**: `utils.py` 提供 `get_last_date()`、`append_csv()`、`next_day()`、`@retry_request`
-
-## 配置
-
-`config.py`:
-- 路径: `RAW_DIR`、`FEATURE_DIR`
-- 时间: 2023-01-01 ~ 今天
-- 股票池: 沪深300 (`sh.000300`)
+- Incremental update: scripts check local CSV dates before appending new rows when supported.
+- Retry logic: akshare requests use retry helpers in `data_fetcher/utils.py`.
+- Shared config: `data_fetcher/config.py` defines `RAW_DIR`, `FEATURE_DIR`, `START_DATE`, `END_DATE`, and `HS300_CODE`.
 
 ## 数据源注意事项
 
-- **baostock**: 稳定无限流，用于K线和基本面
-- **akshare `_em` 接口**: 东方财富源，常被限流。限流时换网络（手机热点）
-- **akshare `_ths` 接口**: 同花顺源，板块数据备选
-- 步骤4的资金流向接口只返回排名数据，非全量300只个股逐日数据。如需全量需逐股抓取（`stock_individual_fund_flow`），当前暂跳过
+- baostock is used for stable market data and some fundamentals.
+- akshare `_em` endpoints can be rate-limited by Eastmoney sources.
+- akshare `_ths` endpoints are Tonghuashun-style board data sources.
+- Step 5 output names and historical raw filenames may differ; check `docs/data_inventory.md` before assuming a file is current.
+
+## 当前推荐工作方式
+
+1. Read `../Experiment/ACTIVE_WORKFLOW.md`.
+2. Read the active workflow strategy and schema files.
+3. Run only the allowed `data_fetcher` steps.
+4. Treat `data/raw/` as raw inputs.
+5. Let `Experiment/workflow_x/pipelines/` convert raw inputs into workflow-specific outputs.

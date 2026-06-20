@@ -1,0 +1,97 @@
+workflow_id: workflow_0.1
+schema_version: workflow_0.1_csv_v1
+health_system_version: workflow_health_v1
+inherit_from: null
+description: "workflow_0.1 formal healthy pipeline sample. Step runners remain workflow-local; Experiment/shared dispatches and validates them."
+
+paths:
+  strategy_dir: strategy
+  docs_dir: docs
+  pipelines_dir: pipelines
+  experiments_dir: experiments
+
+strategy_sources:
+  - strategy/0.1_Step-1_数据获取流程与思考逻辑.md
+  - strategy/0.1_Step-1_真实调度图_代码视角.md
+  - strategy/0.1_Step-2_特征工程与初步筛选流程与思考逻辑.md
+  - ../策略流程与实验方案.md
+
+steps:
+  step1:
+    stage: Step-1
+    runner: run_step1.py
+    default_args: []
+    output_dir_name: step1
+    report_name: step1_run_report.md
+    policy_source:
+      - strategy/0.1_Step-1_数据获取流程与思考逻辑.md
+      - strategy/0.1_Step-1_真实调度图_代码视角.md
+    health_doc: docs/Step-1_正式健康版运作流程.md
+    notes: "Formal Step-1 fetches raw data online by default and excludes unstable external sector quote Step-5."
+  step2:
+    stage: Step-2
+    runner: run_step2.py
+    default_args: []
+    output_dir_name: step2
+    report_name: step2_run_report.md
+    policy_source:
+      - strategy/0.1_Step-2_特征工程与初步筛选流程与思考逻辑.md
+    health_doc: docs/Step-2_正式健康版体系设计.md
+  step3:
+    stage: Step-3
+    runner: run_step3.py
+    default_args: []
+    output_dir_name: step3
+    report_name: step3_run_report.md
+    policy_source:
+      - ../策略流程与实验方案.md
+    health_doc: docs/Step-3_正式健康版体系设计.md
+  step4:
+    stage: Step-4
+    runner: run_step4.py
+    default_args: []
+    output_dir_name: step4
+    report_name: step4_run_report.md
+    policy_source:
+      - ../策略流程与实验方案.md
+    health_doc: docs/Step-4_正式健康版体系设计.md
+  step5:
+    stage: Step-5
+    runner: run_step5.py
+    default_args: []
+    output_dir_name: step5
+    report_name: step5_run_report.md
+    policy_source:
+      - ../策略流程与实验方案.md
+    health_doc: docs/Step-5_正式健康版体系设计.md
+    model_artifact_dir: models
+  step6:
+    stage: Step-6
+    runner: run_step6.py
+    default_args: []
+    output_dir_name: step6
+    report_name: step6_run_report.md
+    policy_source:
+      - ../策略流程与实验方案.md
+    health_doc: docs/Step-6_正式健康版体系设计.md
+  step7:
+    stage: Step-7
+    runner: run_step7.py
+    default_args: []
+    supported_modes:
+      - freeze-only
+      - local-score
+    default_mode: freeze-only
+    output_dir_name: step7
+    report_name: step7_run_report.md
+    policy_source:
+      - ../策略流程与实验方案.md
+    health_doc: docs/Step-7_正式健康版体系设计.md
+    notes: "freeze-only is the default healthy mode; local-score requires future official/test data relative to candidate_date."
+
+migration:
+  reusable_health_pattern: true
+  shared_runner_supported: true
+  shared_validator_supported: true
+  workflow_local_runners: true
+  next_workflow_hint: "Copy this file to workflow_0.2, change workflow_id, strategy_sources, and only the step params that truly differ."
