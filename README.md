@@ -77,6 +77,7 @@ stock_id,weight
 ├── sample_experiment/
 ├── Trial_2/
 ├── baseline
+├── baseline_code/
 ├── 赛题描述与代码规范详细总结.md
 ├── .gitattributes
 └── .gitignore
@@ -264,6 +265,24 @@ Experiment/workflow_0.2/
 - `local_baseline_experiment/`：我们本地历史实验流水线
 
 日常实验优先看 `local_baseline_experiment/`、`THU-BDC2026-main/` 和 `Experiment/`。
+
+### `baseline_code/`
+
+本地 baseline 仓库（`Sherlock1956/THU-BDC2026`）最新代码的快照副本，包含：
+
+- `code/src/`：多模型融合选股代码 —— `StockTransformer` + `XGBRanker` + `LGBMRanker`、两阶段推理（Top30 召回 → 精排 Top5）
+  - `config.py`：全部参数支持 `BDC_*` 环境变量覆盖
+  - `features.py`：申万行业 + 市场状态特征
+  - `label.py`：绝对收益 / 超额收益 / 排序 / 方向 / 波动率标签
+  - `models.py`：树模型排序器与日截面排名融合
+  - `postprocess.py`：硬门控、行业/相关性约束、均值-方差权重优化
+  - `validation.py`：Walk-forward 滚动验证
+  - `ensemble.py` / `nightly_automl.py`：多 checkpoint 融合与夜间 AutoML 调度
+- `README.md`：完整架构说明与运行方法
+- `OPTIMIZE_LOG.md`：AutoML 实验日志（策略、分数、结论）
+- `test/`、`data/`（小文件）、`output/`：评分脚本、股票池与结果示例
+
+说明：行情数据 `stock_data.csv`（约 19MB）与模型权重 `best_model.pth` 未包含在快照中，可用 `get_stock_data.py` 重新获取、`train.py` 重新训练。
 
 ## 实验组织规范
 
