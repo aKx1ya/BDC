@@ -64,7 +64,7 @@ stock_id,weight
 
 也就是说，训练模型不是终点。真正影响提交结果的还有候选池召回质量、行业/风险约束、权重分配、事件过滤和复盘迭代。
 
-策略主文档见 [`Experiment/策略流程与实验方案.md`](./Experiment/策略流程与实验方案.md)。
+策略主文档见 [`Experiment/策略流程与实验方案.md`](./Experiment/策略流程与实验方案.md)，基于获奖队伍经验设计的完整升级路线见 [`Experiment/升级方案.md`](./Experiment/升级方案.md)。
 
 ## 仓库结构
 
@@ -209,6 +209,8 @@ python3 run_all.py --with-feature
 
 - [`Experiment/策略流程与实验方案.md`](./Experiment/策略流程与实验方案.md)：七步策略主文档
 - [`Experiment/策略流程图.md`](./Experiment/策略流程图.md)：流程结构图
+- [`Experiment/升级方案.md`](./Experiment/升级方案.md)：baseline 一步到位升级路线（多模型融合、Walk-forward、两阶段选股）
+- [`Experiment/ACTIVE_WORKFLOW.md`](./Experiment/ACTIVE_WORKFLOW.md)：当前激活的 workflow
 - [`Experiment/workflow_0.1/`](./Experiment/workflow_0.1/)：第一个 workflow 版本
 
 `workflow_0.1` 的含义是：当前我们基于总策略，对 Step 1 数据获取和 Step 2 特征工程/初步筛选做了一版微调。这个目录下分成两类材料：
